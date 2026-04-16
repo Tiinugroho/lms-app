@@ -1,4 +1,4 @@
-@extends('admin.partials.app')
+@extends('partials.app')
 @section('title', 'Edit Data Guru')
 
 @push('styles')

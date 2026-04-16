@@ -1,4 +1,4 @@
-@extends('admin.partials.app')
+@extends('partials.app')
 @section('title', 'Dashboard Admin')
 @section('content')
     <main class="flex-1 pb-12 pt-8 relative">

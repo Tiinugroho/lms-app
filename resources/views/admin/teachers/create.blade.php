@@ -1,4 +1,4 @@
-@extends('admin.partials.app')
+@extends('partials.app')
 @section('title', 'Tambah Data Guru')
 
 @push('styles')
