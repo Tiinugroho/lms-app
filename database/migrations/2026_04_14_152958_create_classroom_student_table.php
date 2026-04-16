@@ -5,20 +5,21 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void {
+    public function up(): void
+    {
         Schema::create('classroom_student', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('classroom_id')->constrained('classrooms')->cascadeOnDelete();
-            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
-            $table->foreignId('academic_year_id')->constrained('academic_years')->restrictOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('classroom_id')->constrained('classrooms')->cascadeOnDelete();
+            $table->foreignUuid('student_id')->constrained('students')->cascadeOnDelete();
+            $table->foreignUuid('academic_year_id')->constrained('academic_years')->restrictOnDelete();
             $table->timestamps();
-            
-            // Mencegah 1 siswa masuk ke 2 kelas berbeda di tahun ajaran yang sama
-            $table->unique(['student_id', 'academic_year_id']); 
+            $table->unique(['student_id', 'academic_year_id']);
+            $table->softDeletes(); // Tambahkan soft deletes
         });
     }
 
-    public function down(): void {
+    public function down(): void
+    {
         Schema::dropIfExists('classroom_student');
     }
 };
