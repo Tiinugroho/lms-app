@@ -9,10 +9,17 @@ return new class extends Migration {
     {
         Schema::create('academic_years', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name');
+            
+            // Mengganti 'name' menjadi period dan semester
+            $table->string('period', 9); // Contoh: "2024/2025"
+            $table->enum('semester', ['Ganjil', 'Genap']);
+            
             $table->boolean('is_active')->default(false);
             $table->timestamps();
-            $table->softDeletes(); // Tambahkan soft deletes
+            $table->softDeletes();
+
+            // Mencegah ada 2 record "2024/2025 Ganjil"
+            $table->unique(['period', 'semester'], 'unique_period_semester');
         });
     }
 

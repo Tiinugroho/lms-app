@@ -10,6 +10,7 @@ return new class extends Migration {
         Schema::create('teachers', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('nik', 20)->unique()->nullable();
             $table->string('nip', 20)->unique()->nullable();
             $table->string('nuptk', 20)->unique()->nullable();
             $table->enum('gender', ['L', 'P']);

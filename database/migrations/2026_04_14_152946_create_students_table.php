@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('nis', 20)->unique();
             $table->string('nisn', 20)->unique()->nullable();
+            $table->string('nik', 20)->unique()->nullable();
             $table->enum('gender', ['L', 'P']);
             $table->string('phone_number', 15)->nullable();
             $table->text('address')->nullable();

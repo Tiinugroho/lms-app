@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Student extends Model
 {
     use HasUuids, HasFactory, SoftDeletes;
-    protected $fillable = ['user_id', 'nis', 'nisn', 'gender', 'phone_number', 'address'];
+    protected $fillable = ['user_id', 'nis', 'nisn', 'nik', 'gender', 'phone_number', 'address'];
 
     public function user()
     {
@@ -19,8 +19,17 @@ class Student extends Model
 
     public function classrooms()
     {
-        return $this->belongsToMany(Classroom::class)
-                    ->withPivot('academic_year_id')
-                    ->withTimestamps();
+        return $this->belongsToMany(Classroom::class)->withPivot('academic_year_id')->withTimestamps();
+    }
+
+    public function classHistories()
+    {
+        return $this->hasMany(ClassHistory::class);
+    }
+
+    // Helper untuk mengambil kelas aktif saat ini
+    public function currentClassHistory()
+    {
+        return $this->hasOne(ClassHistory::class)->latestOfMany();
     }
 }

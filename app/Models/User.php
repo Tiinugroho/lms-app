@@ -18,7 +18,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasRoles, HasUuids, SoftDeletes;
 
     protected $fillable = [
-        'name', 'email', 'password', 'is_active',
+        'name', 'email', 'password', 'is_active', 'avatar',
     ];
 
     protected $hidden = [
@@ -45,4 +45,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(Student::class);
     }
+
+    public function getAvatarUrlAttribute()
+{
+    if ($this->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->avatar)) {
+        return asset('storage/' . $this->avatar);
+    }
+    
+    // Jika tidak ada foto, tampilkan inisial nama dengan warna random
+    return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=random&color=fff';
+}
 }

@@ -1,10 +1,26 @@
+@php
+    // Panggil sekali di atas layout
+    $webSetting = \App\Models\Setting::getSetting();
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title') | LMS</title>
+
+    <title>@yield('title') | {{ $webSetting->app_short_name ?? config('app.name') }}</title>
+
+    <meta name="title" content="{{ $webSetting->meta_title ?? $webSetting->app_name }}">
+    <meta name="description" content="{{ $webSetting->meta_description }}">
+    <meta name="keywords" content="{{ $webSetting->meta_keywords }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $webSetting->meta_title ?? $webSetting->app_name }}">
+    <meta property="og:description" content="{{ $webSetting->meta_description }}">
+    <meta property="og:image" content="{{ $webSetting->logo_url }}">
+
+    <link rel="icon" href="{{ $webSetting->favicon_url }}" type="image/x-icon">
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -30,8 +46,9 @@
             font-family: 'Figtree', sans-serif;
         }
 
+        /* Efek fade out untuk preloader container */
         #preloader {
-            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+            transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
         }
 
         /* Override DataTables Styles untuk Tabel Bersih & Bergaris */
@@ -72,33 +89,26 @@
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
         }
 
-        /* 2. Paksa Pagination Menjadi Putih & Matikan Efek Dark Mode Bawaan DataTables */
+        /* Paksa Pagination Menjadi Putih & Matikan Efek Dark Mode Bawaan DataTables */
         div.dt-container div.dt-paging nav a {
             background-color: #ffffff !important;
             color: #4b5563 !important;
-            /* Teks abu-abu */
             border-color: #e5e7eb !important;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
         }
 
-        /* Saat tombol pagination di-hover */
         div.dt-container div.dt-paging nav a:hover {
             background-color: #f9fafb !important;
-            /* Abu-abu sangat terang */
             color: #111827 !important;
         }
 
-        /* Saat tombol pagination menunjukkan halaman aktif saat ini */
         div.dt-container div.dt-paging nav a[aria-current="page"] {
             background-color: #f3f4f6 !important;
-            /* Background abu-abu aktif (gray-100) */
             color: #111827 !important;
-            /* Teks gelap tegas */
             font-weight: 600 !important;
             border-color: #d1d5db !important;
         }
 
-        /* Jika tombol disable (seperti tombol 'Previous' di halaman 1) */
         div.dt-container div.dt-paging nav a[aria-disabled="true"] {
             opacity: 0.5 !important;
             cursor: not-allowed !important;
@@ -110,18 +120,18 @@
 
 <body class="bg-gray-100 text-gray-900 antialiased overflow-hidden">
 
-    <div id="preloader" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-600"></div>
+    <div id="preloader" class="fixed top-0 left-0 w-full h-1 z-[100] pointer-events-none">
+        <div id="preloader-bar" class="h-full bg-indigo-600 w-0 transition-all duration-300 ease-out shadow-[0_0_10px_#4f46e5]"></div>
     </div>
 
     <div class="flex h-screen overflow-hidden relative">
         <div id="sidebarOverlay"
             class="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 hidden transition-opacity lg:hidden"></div>
 
-        @include('admin.partials.sidebar')
+        @include('partials.sidebar')
 
         <div class="flex flex-1 flex-col overflow-y-auto">
-            @include('admin.partials.header')
+            @include('partials.header')
             @yield('content')
         </div>
     </div>
@@ -131,12 +141,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
+        // Logika Top Loading Bar
+        let loadProgress = 0;
+        let preloaderInterval = setInterval(function() {
+            // Simulasi bar berjalan cepat di awal, lalu melambat di sekitar 80%
+            loadProgress += Math.random() * 15;
+            if (loadProgress > 85) loadProgress = 85; 
+            $('#preloader-bar').css('width', loadProgress + '%');
+        }, 200);
+
         $(window).on('load', function() {
-            $('#preloader').css({
-                'opacity': '0',
-                'visibility': 'hidden'
-            });
-            $('body').removeClass('overflow-hidden');
+            // Hentikan simulasi
+            clearInterval(preloaderInterval);
+            
+            // Penuhkan bar menjadi 100%
+            $('#preloader-bar').css('width', '100%');
+            
+            // Tunggu sebentar (300ms) agar mata user sempat melihat bar mencapai ujung, lalu hilangkan
+            setTimeout(function() {
+                $('#preloader').css({
+                    'opacity': '0',
+                    'visibility': 'hidden'
+                });
+                $('body').removeClass('overflow-hidden');
+            }, 300);
         });
 
         $(document).ready(function() {
@@ -150,12 +178,9 @@
 
             // Inisialisasi DataTable & Hapus Class Hitam Tailwind bawaan
             $('#myTable').DataTable({
-                "language": {
-                    // "url": "https://cdn.datatables.net/plug-ins/1.10.21/i18n/Indonesian.json"
-                },
+                "language": {},
                 "pagingType": "simple_numbers",
                 "lengthMenu": [5, 10, 25, 50],
-
             });
 
             // Logika UI Bawaan (Sidebar & Dropdown)
@@ -194,7 +219,6 @@
 
             // Logika untuk tombol Ya, Keluar
             $('#confirmLogout').click(function() {
-                // Eksekusi submit pada form hidden Laravel
                 $('#logout-form').submit();
             });
         });

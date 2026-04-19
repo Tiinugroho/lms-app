@@ -1,5 +1,5 @@
 @extends('partials.app')
-@section('title', 'Manajemen Data Guru')
+@section('title', 'Manajemen Staff & Tendik')
 
 @section('content')
     <main class="flex-1 pb-12 pt-8 relative w-full">
@@ -9,11 +9,11 @@
 
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Manajemen Guru</h2>
-                    <p class="text-sm text-gray-500 mt-1">Kelola data profil dan akun login tenaga pengajar.</p>
+                    <h2 class="text-2xl font-bold text-gray-900">Manajemen Tenaga Kependidikan</h2>
+                    <p class="text-sm text-gray-500 mt-1">Kelola data tata usaha, admin, dan staff sekolah lainnya.</p>
                 </div>
-                <a href="{{ route('admin.teachers.create') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition">
-                    + Tambah Guru
+                <a href="{{ route('admin.staffs.create') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition">
+                    + Tambah Staff Baru
                 </a>
             </div>
 
@@ -23,12 +23,18 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8 w-full">
+            @if($errors->any())
+                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 w-full">
                 <div class="bg-white/60 backdrop-blur-md border border-white p-5 sm:p-6 rounded-xl shadow-sm transition hover:shadow-md">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Total Guru</p>
-                            <h3 class="mt-1 text-2xl sm:text-3xl font-bold text-gray-900">{{ $totalTeachers }}</h3>
+                            <p class="text-sm font-medium text-gray-500">Total Staff</p>
+                            <h3 class="mt-1 text-2xl sm:text-3xl font-bold text-gray-900">{{ $totalStaffs }}</h3>
                         </div>
                         <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -39,8 +45,8 @@
                 <div class="bg-white/60 backdrop-blur-md border border-white p-5 sm:p-6 rounded-xl shadow-sm transition hover:shadow-md">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Guru Aktif (Bisa Login)</p>
-                            <h3 class="mt-1 text-2xl sm:text-3xl font-bold text-gray-900">{{ $activeTeachers }}</h3>
+                            <p class="text-sm font-medium text-gray-500">Staff Aktif</p>
+                            <h3 class="mt-1 text-2xl sm:text-3xl font-bold text-gray-900">{{ $activeStaffs }}</h3>
                         </div>
                         <div class="p-3 bg-green-50 text-green-600 rounded-lg">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -52,7 +58,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-500">Akun Non-Aktif</p>
-                            <h3 class="mt-1 text-2xl sm:text-3xl font-bold text-gray-900">{{ $inactiveTeachers }}</h3>
+                            <h3 class="mt-1 text-2xl sm:text-3xl font-bold text-gray-900">{{ $inactiveStaffs }}</h3>
                         </div>
                         <div class="p-3 bg-red-50 text-red-600 rounded-lg">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -62,54 +68,67 @@
             </div>
 
             <div class="bg-white shadow-sm sm:rounded-lg border border-gray-100 p-4 sm:p-6 w-full relative">
-                @if ($teachers->count() > 0)
+                @if ($staffs->count() > 0)
                     <div class="overflow-x-auto w-full">
-                        <table id="teacherTable" class="w-full min-w-[800px] text-left border-collapse">
+                        <table id="staffTable" class="w-full min-w-[900px] text-left border-collapse">
                             <thead>
                                 <tr class="border-b border-gray-200 text-sm font-semibold text-gray-600 bg-gray-50/50">
                                     <th class="px-4 py-3 whitespace-nowrap w-16">No</th>
-                                    <th class="px-4 py-3 whitespace-nowrap">Profil Guru</th>
-                                    <th class="px-4 py-3 whitespace-nowrap">NIP / NIK</th>
-                                    <th class="px-4 py-3 whitespace-nowrap">Status</th>
+                                    <th class="px-4 py-3 whitespace-nowrap">Profil Staff</th>
+                                    <th class="px-4 py-3 whitespace-nowrap">Jabatan & ID</th>
+                                    <th class="px-4 py-3 whitespace-nowrap">Hak Akses</th>
+                                    <th class="px-4 py-3 whitespace-nowrap text-center">Status</th>
                                     <th class="px-4 py-3 whitespace-nowrap text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                @foreach ($teachers as $teacher)
+                                @foreach ($staffs as $staff)
                                     <tr class="hover:bg-gray-50 transition">
                                         <td class="px-4 py-4 text-sm text-gray-600">{{ $loop->iteration }}</td>
                                         
                                         <td class="px-4 py-4">
                                             <div class="flex items-center gap-3">
-                                                <img src="{{ $teacher->user->avatar_url }}" alt="Avatar" class="h-10 w-10 rounded-full object-cover border border-gray-200 shadow-sm">
+                                                <img src="{{ $staff->user->avatar_url }}" alt="Avatar" class="h-10 w-10 rounded-full object-cover border border-gray-200 shadow-sm">
                                                 <div>
-                                                    <div class="font-medium text-gray-900 whitespace-nowrap">{{ $teacher->user->name }}</div>
-                                                    <div class="text-sm text-gray-500 whitespace-nowrap">{{ $teacher->user->email }}</div>
+                                                    <div class="font-medium text-gray-900 whitespace-nowrap">{{ $staff->user->name }}</div>
+                                                    <div class="text-sm text-gray-500 whitespace-nowrap">{{ $staff->user->email }}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        
+
                                         <td class="px-4 py-4 text-sm text-gray-600 whitespace-nowrap">
-                                            <span class="font-semibold text-gray-900">{{ $teacher->nip ?? '-' }}</span> <br>
-                                            <span class="text-xs text-gray-500">NIK: {{ $teacher->nik ?? '-' }}</span>
+                                            <span class="font-semibold text-indigo-600">{{ $staff->position }}</span> <br>
+                                            <span class="text-xs text-gray-500">NIP: {{ $staff->nip }} | NIK: {{ $staff->nik ?? '-' }}</span>
                                         </td>
+
                                         <td class="px-4 py-4 whitespace-nowrap">
-                                            @if ($teacher->user->is_active)
+                                            @foreach($staff->user->roles as $role)
+                                                <span class="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-xs font-medium">{{ ucwords(str_replace('-', ' ', $role->name)) }}</span>
+                                            @endforeach
+                                        </td>
+
+                                        <td class="px-4 py-4 whitespace-nowrap text-center">
+                                            @if ($staff->user->is_active)
                                                 <span class="px-2 py-1 bg-green-50 text-green-700 border border-green-200 rounded-md text-xs font-medium">Aktif</span>
                                             @else
                                                 <span class="px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-md text-xs font-medium">Non-Aktif</span>
                                             @endif
                                         </td>
+
                                         <td class="px-4 py-4 whitespace-nowrap">
                                             <div class="flex items-center justify-end gap-2">
-                                                <a href="{{ route('admin.teachers.edit', $teacher->id) }}" class="flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-600 rounded hover:bg-indigo-200 text-sm font-medium transition">
+                                                <a href="{{ route('admin.staffs.id-card', $staff->id) }}" target="_blank" class="flex items-center gap-1 px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 text-sm font-medium transition" title="Cetak ID Card">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                                    Cetak
+                                                </a>
+                                                <a href="{{ route('admin.staffs.edit', $staff->id) }}" class="flex items-center gap-1 px-3 py-1.5 bg-indigo-100 text-indigo-600 rounded hover:bg-indigo-200 text-sm font-medium transition">
                                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6.586-6.586a2 2 0 112.828 2.828L11.828 13.828A4 4 0 019 15H6v-3a4 4 0 011.172-2.828z" /></svg>
                                                     Edit
                                                 </a>
-                                                <form action="{{ route('admin.teachers.destroy', $teacher->id) }}" method="POST">
+                                                <form action="{{ route('admin.staffs.destroy', $staff->id) }}" method="POST">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="button" class="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 text-sm font-medium transition btn-delete">
+                                                    <button type="button" class="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 text-sm font-medium transition btn-delete" {{ $staff->user_id === auth()->id() ? 'disabled title="Tidak bisa menghapus akun sendiri"' : '' }}>
                                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-1 14H6L5 7m5 4v6m4-6v6M9 7h6m-7 0l1-2h4l1 2" /></svg>
                                                         Hapus
                                                     </button>
@@ -126,13 +145,8 @@
                         <div class="h-24 w-24 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                             <svg class="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                         </div>
-                        <h3 class="text-lg font-medium text-gray-900">Belum Ada Data Guru</h3>
-                        <p class="mt-1 text-sm text-gray-500 max-w-sm mx-auto">Sistem belum memiliki data tenaga pengajar. Silakan tambahkan guru baru.</p>
-                        <div class="mt-6">
-                            <a href="{{ route('admin.teachers.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                                Tambah Guru Pertama
-                            </a>
-                        </div>
+                        <h3 class="text-lg font-medium text-gray-900">Belum Ada Data Staff</h3>
+                        <p class="mt-1 text-sm text-gray-500 max-w-sm mx-auto">Sistem belum memiliki data tenaga kependidikan. Silakan tambahkan data baru.</p>
                     </div>
                 @endif
             </div>
@@ -151,7 +165,7 @@
                             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi Hapus Data</h3>
                                 <div class="mt-2">
-                                    <p class="text-sm text-gray-500">Apakah Anda yakin ingin menghapus data guru ini? Semua data yang terkait dengan guru ini tidak dapat dikembalikan lagi.</p>
+                                    <p class="text-sm text-gray-500">Apakah Anda yakin ingin menghapus data staff ini? Tindakan ini bersifat permanen.</p>
                                 </div>
                             </div>
                         </div>
@@ -163,34 +177,34 @@
                 </div>
             </div>
         </div>
-
     </main>
 @endsection
 
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#teacherTable').DataTable({
+            $('#staffTable').DataTable({
                 "language": {},
                 "pagingType": "simple_numbers",
                 "lengthMenu": [5, 10, 25, 50],
-                "columnDefs": [{"orderable": false, "targets": 4 }]
+                "columnDefs": [{"orderable": false, "targets": 5}]
             });
 
             let formToSubmit = null;
             $(document).on('click', '.btn-delete', function(e) {
                 e.preventDefault();
+                if($(this).is(':disabled')) return;
                 formToSubmit = $(this).closest('form');
-                $('#customDeleteModal').removeClass('hidden');
+                $('#customDeleteModal').removeClass('hidden'); 
             });
 
             $('#confirmDeleteAction').on('click', function() {
-                if (formToSubmit) formToSubmit.submit();
+                if (formToSubmit) formToSubmit.submit(); 
             });
 
             $('.close-modal').on('click', function() {
-                $('#customDeleteModal').addClass('hidden');
-                formToSubmit = null;
+                $('#customDeleteModal').addClass('hidden'); 
+                formToSubmit = null; 
             });
         });
     </script>

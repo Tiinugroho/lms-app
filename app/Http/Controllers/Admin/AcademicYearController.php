@@ -11,9 +11,21 @@ class AcademicYearController extends Controller
 {
     public function index()
     {
-        // Menampilkan daftar tahun ajaran, diurutkan dari yang terbaru
-        $academicYears = AcademicYear::latest()->paginate(10);
-        return view('admin.academic-years.index', compact('academicYears'));
+        // Statistik untuk Cards
+        $totalYears = AcademicYear::count();
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        // Menggunakan accessor 'name' yang sudah kita buat di Model sebelumnya
+        // Hapus baris ini:
+        // $activeYearName = $activeYear ? $activeYear->name : 'Belum Ada yang Aktif';
+
+        // GANTI menjadi seperti ini:
+        $activeYearName = $activeYear ? $activeYear->period . ' ' . $activeYear->semester : 'Belum Ada yang Aktif';
+
+        // Menggunakan get() untuk DataTables
+        // Diurutkan berdasarkan period terbaru, lalu semester Genap (agar Ganjil muncul duluan di tahun yang sama jika descending)
+        $academicYears = AcademicYear::orderBy('period', 'desc')->orderBy('semester', 'desc')->get();
+
+        return view('admin.academic-years.index', compact('academicYears', 'totalYears', 'activeYearName'));
     }
 
     public function create()
@@ -23,61 +35,72 @@ class AcademicYearController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:academic_years,name',
-            // is_active tidak divalidasi dari form create, default selalu false di awal
-        ]);
+        $validated = $request->validate(
+            [
+                'period' => [
+                    'required',
+                    'string',
+                    'regex:/^\d{4}\/\d{4}$/', // Wajib format: 2024/2025
+                ],
+            ],
+            [
+                'period.regex' => 'Format Tahun Akademik harus YYYY/YYYY (contoh: 2024/2025).',
+            ],
+        );
 
-        AcademicYear::create([
-            'name' => $validated['name'],
-            'is_active' => false, // Aman: default selalu tidak aktif saat baru dibuat
-        ]);
+        $period = $validated['period'];
 
-        return redirect()->route('admin.academic-years.index')->with('success', 'Tahun Ajaran baru berhasil ditambahkan.');
+        // Cek apakah tahun ajaran ini sudah pernah dibuat
+        if (AcademicYear::where('period', $period)->exists()) {
+            return back()
+                ->withErrors(['period' => 'Tahun Akademik ini sudah ada di dalam database.'])
+                ->withInput();
+        }
+
+        // Gunakan DB Transaction untuk membuat Ganjil & Genap sekaligus
+        DB::transaction(function () use ($period) {
+            AcademicYear::create([
+                'period' => $period,
+                'semester' => 'Ganjil',
+                'is_active' => false,
+            ]);
+
+            AcademicYear::create([
+                'period' => $period,
+                'semester' => 'Genap',
+                'is_active' => false,
+            ]);
+        });
+
+        return redirect()->route('admin.academic-years.index')->with('success', 'Tahun Akademik baru (Ganjil & Genap) berhasil ditambahkan.');
     }
 
-    public function edit(AcademicYear $academicYear)
-    {
-        return view('admin.academic-years.edit', compact('academicYear'));
-    }
-
-    public function update(Request $request, AcademicYear $academicYear)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:academic_years,name,' . $academicYear->id,
-        ]);
-
-        $academicYear->update($validated);
-
-        return redirect()->route('admin.academic-years.index')->with('success', 'Nama Tahun Ajaran berhasil diperbarui.');
-    }
+    // CATATAN: Method EDIT dan UPDATE sengaja DIHAPUS.
+    // Mengedit "period" sangat berbahaya jika data ini sudah berelasi dengan tabel Nilai atau Pembayaran.
+    // Jika admin salah input, lebih baik di-HAPUS lalu di-CREATE ulang (selama belum ada transaksi).
 
     public function destroy(AcademicYear $academicYear)
     {
-        // Proteksi: Jangan izinkan menghapus tahun ajaran yang sedang aktif
         if ($academicYear->is_active) {
-            return redirect()->back()->withErrors('Tidak dapat menghapus Tahun Ajaran yang sedang aktif!');
+            return redirect()->back()->withErrors('Tidak dapat menghapus Tahun Akademik yang sedang aktif!');
         }
 
         $academicYear->delete();
 
-        return redirect()->route('admin.academic-years.index')->with('success', 'Tahun Ajaran berhasil dihapus.');
+        return redirect()->route('admin.academic-years.index')->with('success', 'Data semester berhasil dihapus.');
     }
 
-    /**
-     * Method Khusus: Mengaktifkan Tahun Ajaran
-     */
     public function activate(AcademicYear $academicYear)
     {
-        // Gunakan transaksi DB agar jika terjadi error, data tidak setengah-setengah
         DB::transaction(function () use ($academicYear) {
-            // 1. Nonaktifkan semua tahun ajaran yang ada di database
+            // Nonaktifkan semua yang sedang aktif
             AcademicYear::query()->update(['is_active' => false]);
-            
-            // 2. Aktifkan hanya tahun ajaran yang dipilih
+            // Aktifkan yang dipilih
             $academicYear->update(['is_active' => true]);
         });
 
-        return redirect()->back()->with('success', 'Tahun Ajaran ' . $academicYear->name . ' sekarang aktif.');
+        return redirect()
+            ->back()
+            ->with('success', 'Tahun Akademik ' . $academicYear->name . ' sekarang Aktif.');
     }
 }

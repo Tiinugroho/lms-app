@@ -36,13 +36,6 @@ class SubjectController extends Controller
         return redirect()->route('admin.subjects.index')->with('success', 'Mata Pelajaran berhasil ditambahkan.');
     }
 
-    public function show(Subject $subject)
-    {
-        // Opsional: Menampilkan detail mapel beserta daftar tugas di dalamnya
-        $subject->load('assignments');
-        return view('admin.subjects.show', compact('subject'));
-    }
-
     public function edit(Subject $subject)
     {
         // Menampilkan form edit mapel
