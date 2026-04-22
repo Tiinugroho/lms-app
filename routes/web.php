@@ -1,15 +1,21 @@
 <?php
 
 use App\Http\Controllers\Admin\AcademicYearController;
+use App\Http\Controllers\Admin\ClassPlottingController; // <-- Tambahkan ini
 use App\Http\Controllers\Admin\ClassroomController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\Guru\AssignmentController;
+use App\Http\Controllers\Guru\AttendanceController;
 use App\Http\Controllers\Guru\DashboardController as GuruDashboardController;
+use App\Http\Controllers\Guru\MaterialController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Siswa\DashboardController as SiswaDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -20,12 +26,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// 1. Rute Root ("/")
 Route::get('/', function () {
-    // Jika user sudah login, arahkan ke dashboard sesuai role-nya
     if (auth()->check()) {
         $user = auth()->user();
-        if ($user->hasRole(['super-admin', 'admin-sekolah'])) {
+        // Tambahkan pengecekan role 'staff' di sini jika staff mengakses dashboard admin
+        if ($user->hasRole(['super-admin', 'admin-sekolah', 'staff'])) {
             return redirect()->route('admin.dashboard');
         } elseif ($user->hasRole('guru')) {
             return redirect()->route('guru.dashboard');
@@ -33,18 +38,12 @@ Route::get('/', function () {
             return redirect()->route('siswa.dashboard');
         }
     }
-
-    // Jika belum login, arahkan ke form login
     return redirect()->route('login');
 });
 
-// 2. Rute "/dashboard" Penengah
-// Mencegah error 404 jika middleware bawaan Laravel melempar user ke "/dashboard"
 Route::get('/dashboard', function () {
     return redirect('/');
-})
-    ->middleware('auth')
-    ->name('dashboard');
+})->middleware('auth')->name('dashboard');
 
 /*
 |--------------------------------------------------------------------------
@@ -59,10 +58,11 @@ Route::middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| RUTE ADMIN (Super Admin & Admin Sekolah)
+| RUTE ADMIN (Super Admin, Admin Sekolah, & Staff)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:super-admin|admin-sekolah'])
+// PERBAIKAN: Menambahkan role 'staff' agar bisa mengakses area ini
+Route::middleware(['auth', 'role:super-admin|admin-sekolah|staff'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -80,14 +80,28 @@ Route::middleware(['auth', 'role:super-admin|admin-sekolah'])
         Route::resource('classrooms', ClassroomController::class);
         Route::resource('subjects', SubjectController::class);
 
-        // Tahun Akademik (Pastikan route patch/activate berada di atas resource)
+        // Tahun Akademik
         Route::patch('academic-years/{academicYear}/activate', [AcademicYearController::class, 'activate'])->name('academic-years.activate');
         Route::resource('academic-years', AcademicYearController::class);
 
-        Route::resource('roles', RoleController::class);
+        // ==========================================
+        // ROUTE PLOTTING KELAS (PENEMPATAN SISWA)
+        // ==========================================
+        Route::get('/plottings', [ClassPlottingController::class, 'index'])->name('plottings.index');
+        Route::get('/plottings/{academicYear}/{classroom}', [ClassPlottingController::class, 'show'])->name('plottings.show');
+        Route::post('/plottings/{academicYear}/{classroom}', [ClassPlottingController::class, 'store'])->name('plottings.store');
+        Route::delete('/plottings/remove/{classHistory}', [ClassPlottingController::class, 'destroy'])->name('plottings.destroy');
 
+        // Manajemen Sistem (Hanya Super Admin)
+        Route::resource('roles', RoleController::class);
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+        Route::resource('schedules', ScheduleController::class);
+
+        // ROUTE MONITORING UNTUK ADMIN
+        Route::get('/monitoring/attendances', [MonitoringController::class, 'attendances'])->name('monitoring.attendances');
+        Route::get('/monitoring/materials', [MonitoringController::class, 'materials'])->name('monitoring.materials');
     });
 
 /*
@@ -95,29 +109,26 @@ Route::middleware(['auth', 'role:super-admin|admin-sekolah'])
 | RUTE GURU
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:guru'])
+Route::middleware(['auth', 'role:super-admin|guru'])
     ->prefix('guru')
     ->name('guru.')
     ->group(function () {
         // Dashboard Guru
         Route::get('/dashboard', [GuruDashboardController::class, 'index'])->name('dashboard');
 
-        // Nanti rute manajemen materi, tugas, dan nilai ditambahkan di sini
+        // ROUTE ABSENSI GURU
+        Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances.index');
+        Route::get('/attendances/{schedule}/create', [AttendanceController::class, 'create'])->name('attendances.create');
+        Route::post('/attendances/{schedule}', [AttendanceController::class, 'store'])->name('attendances.store');
+
+        // ROUTE BAHAN AJAR (MATERIALS)
+        Route::resource('materials', MaterialController::class)->except(['show', 'edit', 'update']);
+
+        Route::resource('assignments', AssignmentController::class)->except(['show', 'edit', 'update']);
     });
 
-/*
-|--------------------------------------------------------------------------
-| RUTE SISWA
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:siswa'])
-    ->prefix('siswa')
-    ->name('siswa.')
-    ->group(function () {
-        // Dashboard Siswa
-        Route::get('/dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
-
-        // Nanti rute akses materi dan CBT ditambahkan di sini
-    });
+Route::middleware(['auth', 'role:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
+    Route::get('/dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
+});
 
 require __DIR__ . '/auth.php';

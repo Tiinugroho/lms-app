@@ -22,7 +22,6 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($roles as $role) {
-            // Gunakan firstOrCreate agar aman jika di-seed berulang kali
             Role::firstOrCreate([
                 'name' => $role,
                 'guard_name' => 'web'

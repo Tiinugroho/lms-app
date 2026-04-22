@@ -121,7 +121,8 @@
 <body class="bg-gray-100 text-gray-900 antialiased overflow-hidden">
 
     <div id="preloader" class="fixed top-0 left-0 w-full h-1 z-[100] pointer-events-none">
-        <div id="preloader-bar" class="h-full bg-indigo-600 w-0 transition-all duration-300 ease-out shadow-[0_0_10px_#4f46e5]"></div>
+        <div id="preloader-bar"
+            class="h-full bg-indigo-600 w-0 transition-all duration-300 ease-out shadow-[0_0_10px_#4f46e5]"></div>
     </div>
 
     <div class="flex h-screen overflow-hidden relative">
@@ -146,17 +147,17 @@
         let preloaderInterval = setInterval(function() {
             // Simulasi bar berjalan cepat di awal, lalu melambat di sekitar 80%
             loadProgress += Math.random() * 15;
-            if (loadProgress > 85) loadProgress = 85; 
+            if (loadProgress > 85) loadProgress = 85;
             $('#preloader-bar').css('width', loadProgress + '%');
         }, 200);
 
         $(window).on('load', function() {
             // Hentikan simulasi
             clearInterval(preloaderInterval);
-            
+
             // Penuhkan bar menjadi 100%
             $('#preloader-bar').css('width', '100%');
-            
+
             // Tunggu sebentar (300ms) agar mata user sempat melihat bar mencapai ujung, lalu hilangkan
             setTimeout(function() {
                 $('#preloader').css({
@@ -235,6 +236,12 @@
 
         @if (session('info'))
             toastr.info("{{ session('info') }}", "Informasi");
+        @endif
+
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
+                toastr.error("{{ $error }}", "Validasi Gagal");
+            @endforeach
         @endif
     </script>
 
