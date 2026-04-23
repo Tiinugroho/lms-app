@@ -13,7 +13,7 @@
     <main class="flex-1 pb-12 pt-8 relative w-full">
         <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/50 to-transparent -z-10 pointer-events-none"></div>
 
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
+        <div class="mx-auto max-w-12xl px-4 sm:px-6 lg:px-8 w-full">
 
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                 <div>

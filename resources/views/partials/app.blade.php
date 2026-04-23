@@ -40,7 +40,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.tailwindcss.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
+    <link href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css" rel="stylesheet" />
     <style>
         body {
             font-family: 'Figtree', sans-serif;
@@ -137,10 +137,103 @@
         </div>
     </div>
 
+    <div id="crop_modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-lg">
+            <div class="mb-4">
+                <img id="crop_image" class="max-h-[400px] w-full object-contain">
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button id="crop_cancel" class="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
+                <button id="crop_save" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Simpan</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.0.3/js/dataTables.tailwindcss.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('avatar_input');
+            const preview = document.getElementById('avatar_preview');
 
+            const modal = document.getElementById('crop_modal');
+            const cropImage = document.getElementById('crop_image');
+            const btnSave = document.getElementById('crop_save');
+            const btnCancel = document.getElementById('crop_cancel');
+
+            let cropper;
+            let fileName = '';
+
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Validasi
+                if (!file.type.startsWith('image/')) {
+                    alert('File harus gambar!');
+                    return;
+                }
+
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Maksimal 2MB!');
+                    return;
+                }
+
+                fileName = file.name;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    cropImage.src = e.target.result;
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+
+                    // init cropper
+                    if (cropper) cropper.destroy();
+                    cropper = new Cropper(cropImage, {
+                        aspectRatio: 1, // kotak (avatar)
+                        viewMode: 1,
+                        autoCropArea: 1,
+                        responsive: true,
+                    });
+                };
+
+                reader.readAsDataURL(file);
+            });
+
+            btnCancel.addEventListener('click', function() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                input.value = '';
+            });
+
+            btnSave.addEventListener('click', function() {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 300,
+                    height: 300
+                });
+
+                canvas.toBlob(function(blob) {
+                    // preview
+                    const url = URL.createObjectURL(blob);
+                    preview.src = url;
+
+                    // replace file input dengan hasil crop
+                    const newFile = new File([blob], fileName, {
+                        type: 'image/png'
+                    });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(newFile);
+                    input.files = dataTransfer.files;
+
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                });
+            });
+        });
+    </script>
     <script>
         // Logika Top Loading Bar
         let loadProgress = 0;

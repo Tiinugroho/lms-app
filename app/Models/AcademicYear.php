@@ -12,7 +12,7 @@ class AcademicYear extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
-    protected $fillable = ['period', 'semester', 'is_active'];
+    protected $fillable = ['period', 'semester', 'is_active','start_date','end_date'];
 
     // TAMBAHKAN FUNGSI INI
     // Fungsi ini akan otomatis membuat atribut 'name' buatan

@@ -5,7 +5,7 @@
 <main class="flex-1 pb-12 pt-8 relative w-full">
     <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/50 to-transparent -z-10 pointer-events-none"></div>
 
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
+    <div class="mx-auto max-w-12xl px-4 sm:px-6 lg:px-8 w-full">
         <div class="mb-8 text-center sm:text-left">
             <h2 class="text-2xl font-bold text-gray-900">Jadwal Mengajar Saya</h2>
             <p class="text-sm text-gray-500 mt-1">Pilih kelas untuk mulai mengisi Jurnal dan Absensi Siswa.</p>

@@ -5,7 +5,7 @@
     <main class="flex-1 pb-12 pt-8 relative w-full">
         <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/50 to-transparent -z-10 pointer-events-none"></div>
 
-        <div class="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8 w-full">
+        <div class="mx-auto max-w-12xl px-4 sm:px-6 lg:px-8 w-full">
             <div class="mb-8">
                 <a href="{{ route('admin.classrooms.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center gap-1 mb-4">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>

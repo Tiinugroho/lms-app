@@ -7,7 +7,6 @@
     <title>Login | {{ config('app.name', 'SaaS Admin') }}</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
@@ -59,7 +58,7 @@
 
                 <div class="mb-8 text-center lg:text-left">
                     <h2 class="text-3xl font-bold text-gray-900">Selamat Datang</h2>
-                    <p class="text-sm text-gray-500 mt-2">Silakan log in ke akun Anda untuk melanjutkan.</p>
+                    <p class="text-sm text-gray-500 mt-2">Masuk menggunakan Email, NIP, atau NISN Anda.</p>
                 </div>
 
                 <div class="bg-white px-8 py-10 shadow-sm border border-gray-100 sm:rounded-xl">
@@ -67,13 +66,13 @@
                         @csrf
                         
                         <div>
-                            <label for="email" class="block font-medium text-sm text-gray-700">
-                                Email
+                            <label for="login" class="block font-medium text-sm text-gray-700">
+                                Email / NIP / NISN
                             </label>
-                            <input id="email"
+                            <input id="login"
                                 class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 border outline-none transition-colors"
-                                type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
-                                placeholder="admin@example.com">
+                                type="text" name="login" value="{{ old('login') }}" required autofocus autocomplete="username"
+                                placeholder="Masukkan Email, NIP, atau NISN">
                         </div>
 
                         <div class="mt-5">
@@ -124,7 +123,6 @@
 
     <script>
         $(document).ready(function() {
-            // Konfigurasi Default
             toastr.options = {
                 "closeButton": true,
                 "progressBar": true,
@@ -132,20 +130,11 @@
                 "timeOut": "4000",
             };
 
-            // Menangkap Session Flash dari Controller
-            @if (session('success'))
-                toastr.success("{{ session('success') }}", "Berhasil!");
-            @endif
+            @if (session('success')) toastr.success("{{ session('success') }}", "Berhasil!"); @endif
+            @if (session('error')) toastr.error("{{ session('error') }}", "Terjadi Kesalahan"); @endif
+            @if (session('info')) toastr.info("{{ session('info') }}", "Informasi"); @endif
 
-            @if (session('error'))
-                toastr.error("{{ session('error') }}", "Terjadi Kesalahan");
-            @endif
-
-            @if (session('info'))
-                toastr.info("{{ session('info') }}", "Informasi");
-            @endif
-
-            // Menangkap Error Validasi Auth bawaan Laravel (contoh: Kredensial salah)
+            // Error Auth / Validasi
             @if ($errors->any())
                 @foreach ($errors->all() as $error)
                     toastr.error("{{ $error }}", "Peringatan");

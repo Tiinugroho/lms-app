@@ -11,20 +11,14 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // 1. Lakukan autentikasi email & password
+        // 1. Lakukan autentikasi email/NIP/NISN & password (ditangani oleh LoginRequest)
         $request->authenticate();
         $request->session()->regenerate();
 
@@ -37,8 +31,8 @@ class AuthenticatedSessionController extends Controller
             $request->session()->regenerateToken();
             
             return redirect()->route('login')->withErrors([
-                'email' => 'Akun Anda telah dinonaktifkan. Silakan hubungi Administrator.',
-            ])->with('success', 'Login gagal! Akun Anda telah dinonaktifkan.');
+                'login' => 'Akun Anda telah dinonaktifkan. Silakan hubungi Administrator.', // <- Diubah ke 'login'
+            ])->with('error', 'Login gagal! Akun Anda telah dinonaktifkan.');
         }
 
         // 3. Arahkan URL (Redirect) berdasarkan Role menggunakan Spatie
@@ -54,13 +48,10 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('siswa.dashboard', absolute: false))->with('success', 'Login berhasil! Selamat datang, ' . $user->name . '.');
         }
 
-        // Fallback (jika user tidak punya role spesifik, misalnya wali murid)
+        // Fallback
         return redirect()->intended(route('dashboard', absolute: false))->with('success', 'Login berhasil, tetapi tidak ada dashboard khusus untuk role Anda.');
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();

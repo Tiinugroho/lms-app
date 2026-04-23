@@ -15,7 +15,7 @@
     <main class="flex-1 pb-12 pt-8 relative">
         <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/50 to-transparent -z-10 pointer-events-none"></div>
 
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
+        <div class="mx-auto max-w-12xl px-4 sm:px-6 lg:px-8 w-full">
             <div class="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900">Tambah Data Guru</h2>

@@ -11,18 +11,18 @@
             @php
                 $segments = request()->segments();
             @endphp
-            
+
             @forelse($segments as $index => $segment)
-                @if($index > 0)
+                @if ($index > 0)
                     <span class="mx-2">/</span>
                 @endif
-                
+
                 @php
                     // Membersihkan tanda strip ('-') pada URL menjadi spasi
                     $cleanSegment = ucwords(str_replace('-', ' ', $segment));
                 @endphp
 
-                @if($loop->last)
+                @if ($loop->last)
                     <span class="font-medium text-gray-900">{{ $cleanSegment }}</span>
                 @else
                     <span>{{ $cleanSegment }}</span>
@@ -48,10 +48,28 @@
 
             <div id="profileDropdown"
                 class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100 ring-1 ring-black ring-opacity-5">
-                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profil Saya</a>
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pengaturan</a>
+                @if (auth()->user()->hasAnyRole(['super-admin', 'admin-sekolah', 'staff']))
+                    <a href="{{ route('admin.profile.index') }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Profil Saya
+                    </a>
+                @elseif(auth()->user()->hasRole('guru'))
+                    <a href="{{ route('guru.profile.index') }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Profil Saya
+                    </a>
+                @elseif(auth()->user()->hasRole('siswa'))
+                    <a href="{{ route('siswa.profile.index') }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Profil Saya
+                    </a>
+                @else
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Profil Saya
+                    </a>
+                @endif
                 <div class="border-t border-gray-100 my-1"></div>
-                
+
                 <button type="button" id="triggerLogout"
                     class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
                     Log Out
@@ -63,25 +81,32 @@
 
 <div id="logoutModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
     <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity"></div>
-    
-    <div class="bg-white rounded-xl shadow-2xl transform transition-all sm:max-w-md w-full mx-4 z-10 p-6 border border-gray-100">
+
+    <div
+        class="bg-white rounded-xl shadow-2xl transform transition-all sm:max-w-md w-full mx-4 z-10 p-6 border border-gray-100">
         <div class="flex items-center gap-4 mb-4">
-            <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:h-10 sm:w-10">
-                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+            <div
+                class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:h-10 sm:w-10">
+                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                 </svg>
             </div>
             <h3 class="text-lg font-semibold text-gray-900">Konfirmasi Logout</h3>
         </div>
-        
-        <p class="text-sm text-gray-500 mb-6 pl-14">Apakah Anda yakin ingin keluar dari aplikasi? Anda harus login kembali untuk mengakses sistem.</p>
-        
+
+        <p class="text-sm text-gray-500 mb-6 pl-14">Apakah Anda yakin ingin keluar dari aplikasi? Anda harus login
+            kembali untuk mengakses sistem.</p>
+
         <div class="flex justify-end gap-3">
-            <button id="cancelLogout" type="button" class="px-4 py-2 bg-white border border-gray-300 rounded-md font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm transition">
+            <button id="cancelLogout" type="button"
+                class="px-4 py-2 bg-white border border-gray-300 rounded-md font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm transition">
                 Batal
             </button>
-            
-            <button id="confirmLogout" type="button" class="px-4 py-2 bg-red-600 border border-transparent rounded-md font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm shadow-sm transition">
+
+            <button id="confirmLogout" type="button"
+                class="px-4 py-2 bg-red-600 border border-transparent rounded-md font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm shadow-sm transition">
                 Ya, Keluar
             </button>
         </div>

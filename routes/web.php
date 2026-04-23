@@ -5,7 +5,9 @@ use App\Http\Controllers\Admin\ClassPlottingController; // <-- Tambahkan ini
 use App\Http\Controllers\Admin\ClassroomController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MonitoringController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfile;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\RombelController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StaffController;
@@ -16,8 +18,10 @@ use App\Http\Controllers\Guru\AssignmentController;
 use App\Http\Controllers\Guru\AttendanceController;
 use App\Http\Controllers\Guru\DashboardController as GuruDashboardController;
 use App\Http\Controllers\Guru\MaterialController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Guru\ProfileController as GuruProfile;
+use App\Http\Controllers\Guru\PromotionController;
 use App\Http\Controllers\Siswa\DashboardController as SiswaDashboardController;
+use App\Http\Controllers\Siswa\ProfileController as SiswaProfile;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,18 +47,20 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return redirect('/');
-})->middleware('auth')->name('dashboard');
+})
+    ->middleware('auth')
+    ->name('dashboard');
 
 /*
 |--------------------------------------------------------------------------
 | RUTE PROFIL (Bawaan Breeze)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// });
 
 /*
 |--------------------------------------------------------------------------
@@ -102,6 +108,16 @@ Route::middleware(['auth', 'role:super-admin|admin-sekolah|staff'])
         // ROUTE MONITORING UNTUK ADMIN
         Route::get('/monitoring/attendances', [MonitoringController::class, 'attendances'])->name('monitoring.attendances');
         Route::get('/monitoring/materials', [MonitoringController::class, 'materials'])->name('monitoring.materials');
+
+        Route::get('/profile', [AdminProfile::class, 'index'])->name('profile.index');
+        Route::put('/profile', [AdminProfile::class, 'update'])->name('profile.update');
+
+        // ==========================================
+        // MANAJEMEN ROMBEL (PENEMPATAN SISWA)
+        // ==========================================
+        Route::get('/rombels', [RombelController::class, 'index'])->name('rombels.index');
+        Route::post('/rombels', [RombelController::class, 'store'])->name('rombels.store');
+        Route::delete('/rombels/{rombel}', [RombelController::class, 'destroy'])->name('rombels.destroy');
     });
 
 /*
@@ -125,10 +141,23 @@ Route::middleware(['auth', 'role:super-admin|guru'])
         Route::resource('materials', MaterialController::class)->except(['show', 'edit', 'update']);
 
         Route::resource('assignments', AssignmentController::class)->except(['show', 'edit', 'update']);
+
+        Route::get('/profile', [GuruProfile::class, 'index'])->name('profile.index');
+        Route::put('/profile', [GuruProfile::class, 'update'])->name('profile.update');
+
+        // Fitur Kenaikan Kelas Wali Kelas
+        Route::get('/promotions', [PromotionController::class, 'index'])->name('promotions.index');
+        Route::post('/promotions', [PromotionController::class, 'store'])->name('promotions.store');
     });
 
-Route::middleware(['auth', 'role:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
-    Route::get('/dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
-});
+Route::middleware(['auth', 'role:siswa'])
+    ->prefix('siswa')
+    ->name('siswa.')
+    ->group(function () {
+        Route::get('/dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/profile', [SiswaProfile::class, 'index'])->name('profile.index');
+        Route::put('/profile', [SiswaProfile::class, 'update'])->name('profile.update');
+    });
 
 require __DIR__ . '/auth.php';

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -10,47 +11,24 @@ class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Reset cache Spatie
+        // 1. Reset cache Spatie agar tidak ada data nyangkut
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Daftar SEMUA modul dari hulu ke hilir (End-to-End)
+        // 2. Daftar Modul End-to-End
         $modules = [
-            // 1. User Management
-            'teachers',
-            'staffs',
-            'students',
-            
-            // 2. Master Data
-            'academic_years',
-            'classrooms',
-            'subjects',
-            
-            // 3. Operasional Akademik (Admin)
-            'plottings',          // Plotting kelas siswa
-            'schedules',          // Jadwal mengajar
-            
-            // 4. Monitoring (Admin)
-            'monitoring_attendances', // Memantau absensi & jurnal
-            'monitoring_materials',   // Memantau bahan ajar
-            
-            // 5. KBM / E-Learning (Sisi Guru)
-            'attendances',        // Jurnal & Absensi
-            'materials',          // Bahan Ajar
-            'assignments',        // Tugas & Ujian
-            
-            // 6. Penilaian Akhir & Rapor (Modul Masa Depan)
-            'grades',             // Input nilai tugas/ulangan
-            'report_cards',       // Cetak Rapor (PDF)
-            
-            // 7. Pengaturan Sistem
-            'roles',              // Roles & Permissions
-            'settings'            // Setting Website / Logo
+            'teachers', 'staffs', 'students',
+            'academic_years', 'classrooms', 'subjects',
+            'rombels', 'plottings', 'schedules',
+            'monitoring_attendances', 'monitoring_materials',
+            'attendances', 'materials', 'assignments',
+            'grades', 'report_cards',
+            'promotions', // <-- MODUL PROMOTION DITAMBAHKAN DI SINI
+            'roles', 'settings'
         ];
 
-        // Aksi standar untuk tiap modul
         $actions = ['index', 'create', 'edit', 'delete', 'export', 'import'];
 
-        // Looping otomatis untuk generate (contoh: teachers-index, teachers-create)
+        // 3. Buat semua Permissions standar (CRUD)
         foreach ($modules as $module) {
             foreach ($actions as $action) {
                 Permission::firstOrCreate([
@@ -60,11 +38,10 @@ class PermissionSeeder extends Seeder
             }
         }
 
-        // --- TAMBAHAN KHUSUS: PERMISSION KUSTOM (DILUAR CRUD STANDAR) ---
-        // Kadang ada fitur yang bukan CRUD biasa, misal: Approve, Cetak PDF
+        // 4. Buat Custom Permissions (Khusus)
         $customPermissions = [
-            'report_cards-print',      // Khusus cetak rapor
-            'assignments-grade',       // Khusus untuk memberikan nilai (bukan sekedar edit tugas)
+            'report_cards-print',
+            'assignments-grade',
         ];
 
         foreach ($customPermissions as $custom) {
@@ -73,11 +50,54 @@ class PermissionSeeder extends Seeder
                 'guard_name' => 'web'
             ]);
         }
-        
-        // (Opsional) Berikan semua permission ini ke role super-admin
-        $superAdmin = \App\Models\Role::where('name', 'super-admin')->first();
+
+        // =========================================================================
+        // 5. CONNECT ROLE DAN PERMISSION SESUAI KONTEKS
+        // =========================================================================
+
+        // A. SUPER ADMIN (Dapat Semuanya otomatis)
+        $superAdmin = Role::where('name', 'super-admin')->first();
         if ($superAdmin) {
             $superAdmin->syncPermissions(Permission::all());
+        }
+
+        // B. ADMIN SEKOLAH / TATA USAHA (Master Data & Operasional)
+        $adminSekolah = Role::where('name', 'admin-sekolah')->first();
+        if ($adminSekolah) {
+            $adminSekolahPermissions = [
+                // Mengelola User
+                'teachers-index', 'teachers-create', 'teachers-edit', 'teachers-delete', 'teachers-export', 'teachers-import',
+                'staffs-index', 'staffs-create', 'staffs-edit', 'staffs-delete', 'staffs-export', 'staffs-import',
+                'students-index', 'students-create', 'students-edit', 'students-delete', 'students-export', 'students-import',
+                // Mengelola Master Data
+                'academic_years-index', 'academic_years-create', 'academic_years-edit',
+                'classrooms-index', 'classrooms-create', 'classrooms-edit', 'classrooms-delete',
+                'subjects-index', 'subjects-create', 'subjects-edit', 'subjects-delete',
+                // Mengelola Operasional
+                'rombels-index', 'rombels-create', 'rombels-edit', 'rombels-delete',
+                'plottings-index', 'plottings-create', 'plottings-edit', 'plottings-delete',
+                'schedules-index', 'schedules-create', 'schedules-edit', 'schedules-delete',
+                // Akses Monitoring & Rapor
+                'monitoring_attendances-index', 'monitoring_materials-index',
+                'report_cards-index', 'report_cards-print'
+            ];
+            $adminSekolah->syncPermissions($adminSekolahPermissions);
+        }
+
+        // C. GURU (E-Learning, KBM & Wali Kelas)
+        $guru = Role::where('name', 'guru')->first();
+        if ($guru) {
+            $guruPermissions = [
+                // Guru mengelola kelasnya sendiri
+                'attendances-index', 'attendances-create', 'attendances-edit', 'attendances-delete',
+                'materials-index', 'materials-create', 'materials-edit', 'materials-delete',
+                'assignments-index', 'assignments-create', 'assignments-edit', 'assignments-delete',
+                'assignments-grade', 
+                'grades-index', 'grades-create', 'grades-edit', 'grades-delete',
+                // Administrasi Wali Kelas
+                'promotions-index', 'promotions-create', 'promotions-edit', 'promotions-delete', // <-- AKSES KENAIKAN KELAS
+            ];
+            $guru->syncPermissions($guruPermissions);
         }
     }
 }

@@ -16,6 +16,11 @@ class AssignmentController extends Controller
     {
         $teacher = Auth::user()->teacher;
 
+        // PROTEKSI: Cek apakah user punya profil guru
+        if (!$teacher) {
+            return redirect()->back()->withErrors('Akses Ditolak: Akun Anda tidak memiliki profil Guru yang terhubung.');
+        }
+
         // Menampilkan daftar tugas yang dibuat oleh guru tersebut
         $assignments = Assignment::with(['classroom', 'subject'])
             ->where('teacher_id', $teacher->id)
@@ -28,13 +33,19 @@ class AssignmentController extends Controller
     public function create()
     {
         $teacher = Auth::user()->teacher;
+
+        // PROTEKSI
+        if (!$teacher) {
+            return redirect()->back()->withErrors('Akses Ditolak: Anda tidak terdaftar sebagai Guru.');
+        }
+
         $activeYear = AcademicYear::where('is_active', true)->first();
 
         if (!$activeYear) {
             return redirect()->route('guru.assignments.index')->with('error', 'Tidak ada Tahun Ajaran yang aktif.');
         }
 
-        // Ambil kelas yang diajar guru ini (logic sama dengan Materials)
+        // Ambil kelas yang diajar guru ini
         $teachingClasses = Schedule::with(['classroom', 'subject'])
             ->where('teacher_id', $teacher->id)
             ->where('academic_year_id', $activeYear->id)
@@ -50,6 +61,13 @@ class AssignmentController extends Controller
 
     public function store(Request $request)
     {
+        $teacher = Auth::user()->teacher;
+
+        // PROTEKSI
+        if (!$teacher) {
+            return redirect()->back()->withErrors('Gagal menyimpan: Akun Anda bukan Guru.');
+        }
+
         $request->validate([
             'classroom_subject' => 'required|string',
             'title' => 'required|string|max:255',
@@ -59,7 +77,6 @@ class AssignmentController extends Controller
             'file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx,zip|max:10240',
         ]);
 
-        $teacher = Auth::user()->teacher;
         $parts = explode('|', $request->classroom_subject);
         
         $filePath = null;
@@ -83,8 +100,12 @@ class AssignmentController extends Controller
 
     public function destroy(Assignment $assignment)
     {
-        if ($assignment->teacher_id !== Auth::user()->teacher->id) {
-            abort(403);
+        $teacher = Auth::user()->teacher;
+
+        // PROTEKSI 1: Cek profil guru
+        // PROTEKSI 2: Cek kepemilikan tugas
+        if (!$teacher || $assignment->teacher_id !== $teacher->id) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus tugas ini.');
         }
 
         if ($assignment->file_path) {

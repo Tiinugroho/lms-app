@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('instagram_link')->nullable();
             $table->string('facebook_link')->nullable();
             $table->string('youtube_link')->nullable();
+            $table->boolean('is_promotion_open')->default(false);
 
             $table->timestamps();
         });

@@ -19,6 +19,11 @@ class MaterialController extends Controller
     {
         $teacher = Auth::user()->teacher;
 
+        // PROTEKSI: Tolak akses jika tidak memiliki profil guru
+        if (!$teacher) {
+            return redirect()->back()->withErrors('Akses Ditolak: Anda tidak terdaftar sebagai Guru.');
+        }
+
         $materials = Material::with(['classroom', 'subject'])
             ->where('teacher_id', $teacher->id)
             ->latest()
@@ -33,6 +38,12 @@ class MaterialController extends Controller
     public function create()
     {
         $teacher = Auth::user()->teacher;
+
+        // PROTEKSI
+        if (!$teacher) {
+            return redirect()->back()->withErrors('Akses Ditolak: Anda tidak terdaftar sebagai Guru.');
+        }
+
         $activeYear = AcademicYear::where('is_active', true)->first();
 
         if (!$activeYear) {
@@ -40,7 +51,6 @@ class MaterialController extends Controller
         }
 
         // Ambil daftar unik Kelas & Mapel yang diajar guru ini dari tabel Jadwal
-        // Menggunakan unique() agar jika guru mengajar mapel yang sama 2x seminggu di kelas yang sama, opsinya tidak dobel.
         $teachingClasses = Schedule::with(['classroom', 'subject'])
             ->where('teacher_id', $teacher->id)
             ->where('academic_year_id', $activeYear->id)
@@ -61,11 +71,18 @@ class MaterialController extends Controller
      */
     public function store(Request $request)
     {
+        $teacher = Auth::user()->teacher;
+
+        // PROTEKSI
+        if (!$teacher) {
+            return redirect()->back()->withErrors('Gagal mengunggah: Akun Anda bukan Guru.');
+        }
+
         $request->validate([
-            'classroom_subject' => 'required|string', // Value gabungan: classroom_id|subject_id
+            'classroom_subject' => 'required|string', 
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,zip,rar|max:10240', // Maks 10MB
+            'file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,zip,rar|max:10240', 
             'external_link' => 'nullable|url'
         ], [
             'file.mimes' => 'Format file harus berupa PDF, Word, PowerPoint, Excel, atau arsip ZIP/RAR.',
@@ -73,9 +90,6 @@ class MaterialController extends Controller
             'external_link.url' => 'Format link tidak valid (harus diawali http:// atau https://).'
         ]);
 
-        $teacher = Auth::user()->teacher;
-
-        // Memecah value gabungan menjadi classroom_id dan subject_id
         $parts = explode('|', $request->classroom_subject);
         $classroomId = $parts[0];
         $subjectId = $parts[1];
@@ -83,7 +97,6 @@ class MaterialController extends Controller
         // Proses Upload File jika ada
         $filePath = null;
         if ($request->hasFile('file')) {
-            // Simpan ke folder storage/app/public/materials
             $filePath = $request->file('file')->store('materials', 'public');
         }
 
@@ -105,9 +118,11 @@ class MaterialController extends Controller
      */
     public function destroy(Material $material)
     {
-        // Keamanan: Pastikan yang menghapus adalah pemilik materi
-        if ($material->teacher_id !== Auth::user()->teacher->id) {
-            abort(403, 'Unauthorized action.');
+        $teacher = Auth::user()->teacher;
+
+        // PROTEKSI: Pastikan user adalah guru dan merupakan pemilik materi tersebut
+        if (!$teacher || $material->teacher_id !== $teacher->id) {
+            abort(403, 'Anda tidak memiliki otorisasi untuk menghapus bahan ajar ini.');
         }
 
         // Hapus file fisik dari storage jika ada

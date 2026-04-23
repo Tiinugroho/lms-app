@@ -65,42 +65,55 @@
                         </svg>
                         Jadwal Mengajar
                     </a>
+                    
                 </div>
             </div>
 
-            @canany(['monitoring_attendances-index', 'monitoring_materials-index'])
-            <div>
-                <div class="mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider px-3 flex items-center gap-2">
-                    Monitoring Akademik
-                </div>
-                <div class="space-y-1">
-                    @can('monitoring_attendances-index')
-                    <a href="{{ route('admin.monitoring.attendances') }}"
-                        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 
+            @canany(['monitoring_attendances-index', 'monitoring_materials-index', 'rombels-index'])
+                <div>
+                    <div class="mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider px-3 flex items-center gap-2">
+                        Monitoring Akademik
+                    </div>
+                    <div class="space-y-1">
+                        @can('monitoring_attendances-index')
+                            <a href="{{ route('admin.monitoring.attendances') }}"
+                                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 
                         {{ request()->routeIs('admin.monitoring.attendances') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                        <svg class="h-5 w-5 {{ request()->routeIs('admin.monitoring.attendances') ? 'text-indigo-600' : 'text-gray-400' }}"
-                            fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" />
-                        </svg>
-                        Kehadiran Guru & Jurnal
-                    </a>
-                    @endcan
+                                <svg class="h-5 w-5 {{ request()->routeIs('admin.monitoring.attendances') ? 'text-indigo-600' : 'text-gray-400' }}"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" />
+                                </svg>
+                                Kehadiran Guru & Jurnal
+                            </a>
+                        @endcan
 
-                    @can('monitoring_materials-index')
-                    <a href="{{ route('admin.monitoring.materials') }}"
-                        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 
+                        @can('monitoring_materials-index')
+                            <a href="{{ route('admin.monitoring.materials') }}"
+                                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 
                         {{ request()->routeIs('admin.monitoring.materials') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                        <svg class="h-5 w-5 {{ request()->routeIs('admin.monitoring.materials') ? 'text-indigo-600' : 'text-gray-400' }}"
-                            fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                        </svg>
-                        Materi Bahan Ajar
-                    </a>
-                    @endcan
+                                <svg class="h-5 w-5 {{ request()->routeIs('admin.monitoring.materials') ? 'text-indigo-600' : 'text-gray-400' }}"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                </svg>
+                                Materi Bahan Ajar
+                            </a>
+                        @endcan
+                        
+                        @can('rombels-index')
+                            <a href="{{ route('admin.rombels.index') }}"
+                                class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 
+                                {{ request()->routeIs('admin.rombels.*') ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                                <svg class="h-5 w-5 {{ request()->routeIs('admin.rombels.*') ? 'text-indigo-600' : 'text-gray-400' }}"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                Data Rombel
+                            </a>
+                        @endcan
+                    </div>
                 </div>
-            </div>
             @endcanany
 
             @canany(['academic_years-index', 'classrooms-index', 'subjects-index'])
@@ -139,6 +152,7 @@
                                 </svg> Mata Pelajaran
                             </a>
                         @endcan
+                        
                     </div>
                 </div>
             @endcanany
@@ -198,7 +212,7 @@
                             <svg class="h-5 w-5 {{ request()->routeIs('admin.settings.*') ? 'text-indigo-600' : 'text-gray-400' }}"
                                 fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143-.854-.107-1.204l.527-.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z" />
+                                    d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143-.854-.107-1.204l.527-.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71-.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z" />
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg> Pengaturan Website
@@ -214,7 +228,7 @@
                 <div>
                     <div class="mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider px-3">E-Learning Guru</div>
                     <div class="space-y-1">
-                        
+
                         @if (auth()->user()->hasRole('guru'))
                             <a href="{{ route('guru.dashboard') }}"
                                 class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 {{ request()->routeIs('guru.dashboard') ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
@@ -236,7 +250,7 @@
                                 </svg> Jadwal & Absensi
                             </a>
                         @endcan
-                        
+
                         @can('materials-index')
                             <a href="{{ route('guru.materials.index') }}"
                                 class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 {{ request()->routeIs('guru.materials.*') ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
@@ -261,6 +275,21 @@
                     </div>
                 </div>
             @endcanany
+
+            @can('promotions-index')
+                <div>
+                    <div class="mb-2 mt-4 text-xs font-bold text-gray-400 uppercase tracking-wider px-3">Administrasi Kelas</div>
+                    <div class="space-y-1">
+                        <a href="{{ route('guru.promotions.index') }}"
+                            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 {{ request()->routeIs('guru.promotions.*') ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <svg class="h-5 w-5 {{ request()->routeIs('guru.promotions.*') ? 'text-indigo-600' : 'text-gray-400' }}"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                            </svg> Kenaikan Kelas
+                        </a>
+                    </div>
+                </div>
+            @endcan
         @endif
 
         {{-- ========================== MENU SISWA ========================== --}}

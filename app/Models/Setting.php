@@ -23,6 +23,7 @@ class Setting extends Model
         'instagram_link',
         'facebook_link',
         'youtube_link',
+        'is_promotion_open', // Tambahkan field ini ke fillable
     ];
 
     /**

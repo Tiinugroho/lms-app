@@ -216,17 +216,6 @@
                 "language": {
                     "emptyTable": emptyEnrolledHTML,
                     "zeroRecords": zeroRecordsEnrolledHTML,
-                    // "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ anggota",
-                    // "infoEmpty": "Menampilkan 0 anggota",
-                    // "infoFiltered": "(disaring dari _MAX_ total anggota)",
-                    // "lengthMenu": "Tampilkan _MENU_ baris",
-                    // "search": "Cari:",
-                    // "paginate": {
-                    //     "first":      "Pertama",
-                    //     "last":       "Terakhir",
-                    //     "next":       "Selanjutnya",
-                    //     "previous":   "Sebelumnya"
-                    // }
                 },
                 "pagingType": "simple_numbers",
                 "lengthMenu": [10, 25, 50],
